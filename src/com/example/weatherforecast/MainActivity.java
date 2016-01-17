@@ -1,13 +1,20 @@
 package com.example.weatherforecast;
 
+import java.lang.reflect.Type;
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,30 +51,32 @@ public class MainActivity extends Activity implements OnClickListener{
 			String cityName=city.getText().toString();
 			final Message msg=new Message();
 			if(cityName!=null){
-				String address=httpUrl+"?"+"city="+cityName;
-				showProgressDialog();
-				HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
-					
-					@Override
-					public void onFinish(String response) {
-						// TODO Auto-generated method stub
-						//weatherInfo.setText(response);
-						//Message msg=new Message();
-						msg.what=SHOW_RESPONSE;
-						msg.obj=response;
-						handler.sendMessage(msg);
-					}
-					
-					@Override
-					public void onError(Exception e) {
-						// TODO Auto-generated method stub
-						//weatherInfo.setText("search weather info failed...");
-						//Toast.makeText(this, "search weather info failed...", Toast.LENGTH_LONG).show();
-						//Message msg=new Message();
-						msg.what=SHOW_ERROR;
-						handler.sendMessage(msg);
-					}
-				});
+				try {
+					//String address=new String((httpUrl+"?"+"city="+"上海").getBytes(),"UTF-8");
+					//String address=httpUrl+"?"+"city="+new String("上海".getBytes(),"UTF-8");
+					String address=httpUrl+"?"+"city="+cityName;
+					showProgressDialog();
+					HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
+						@Override
+						public void onFinish(String response) {
+							// TODO Auto-generated method stub
+							//weatherInfo.setText(response);
+							msg.what=SHOW_RESPONSE;
+							msg.obj=response;
+							handler.sendMessage(msg);
+						}					
+						@Override
+						public void onError(Exception e) {
+							// TODO Auto-generated method stub
+							msg.what=SHOW_ERROR;
+							handler.sendMessage(msg);
+						}
+					});
+				} catch (Exception e) {
+					// TODO: handle exception
+					e.printStackTrace();
+					Toast.makeText(this, "request weather info failed...", Toast.LENGTH_LONG).show();
+				}
 			}
 			break;
 		default:
@@ -82,7 +91,8 @@ public class MainActivity extends Activity implements OnClickListener{
 			case SHOW_RESPONSE:
 				closeProgressDialog();
 				//weatherInfo.setText((String)msg.obj);
-				parseJSONWithJSONObject((String)msg.obj);
+				//parseJSONWithJSONObject((String)msg.obj);
+				parseJSONWithGSON((String)msg.obj);
 				break;
 			case SHOW_ERROR:
 				closeProgressDialog();
@@ -114,12 +124,51 @@ public class MainActivity extends Activity implements OnClickListener{
 		}
 	}
 	
+	private void parseJSONWithGSON(String jsonData) {
+		try {
+			JSONObject jsonObject=new JSONObject(jsonData);
+			JSONArray jsonArray=jsonObject.getJSONArray("HeWeather data service 3.0");
+			Log.d("MainActivity", jsonArray.toString());
+			Gson gson=new Gson();
+			//Type type = new TypeToken<List<DataService>>(){}.getType();
+			//List<DataService> dsList=gson.fromJson(jsonData, type);
+			String temp=jsonArray.toString();
+			List<DataService> ds = gson.fromJson(temp, new TypeToken<List<DataService>>(){}.getType());
+			StringBuilder builder=new StringBuilder();
+			for(DataService dss:ds){
+				builder.append("status: "+dss.getStatus()+"//接口状态"+"\n");
+				builder.append("city: "+dss.getBasic().city+"//城市名称"+"\n");
+				builder.append("cnty: "+dss.getBasic().cnty+"//国家"+"\n");
+				builder.append("lat: "+dss.getBasic().lat+"//城市维度"+"\n");
+				builder.append("lon: "+dss.getBasic().lon+"//城市经度"+"\n");
+				builder.append("loc: "+dss.getBasic().getUpdate().getLoc()+"//更新时间"+"\n");
+				builder.append("txt: "+dss.getNow().getCond().getTxt()+"//天气状况描述"+"\n");
+				builder.append("hum: "+dss.getNow().getHum()+"//相对湿度（%）"+"\n");
+				builder.append("pcpn: "+dss.getNow().getPcpn()+"//降水量（mm）"+"\n");
+				builder.append("tmp: "+dss.getNow().getTmp()+"//温度"+"\n");
+				builder.append("vis: "+dss.getNow().getVis()+"//能见度（km）"+"\n");
+				builder.append("dir: "+dss.getNow().getWind().getDir()+"//风向"+"\n");
+				builder.append("sc: "+dss.getNow().getWind().getSc()+"//风力"+"\n");
+				builder.append("spd: "+dss.getNow().getWind().getSpd()+"//风速（kmph）"+"\n");
+				builder.append("aqi: "+dss.getAqi().getCity().getAqi()+"//空气质量指数"+"\n");
+				builder.append("pm25: "+dss.getAqi().getCity().getPm25()+"//PM2.5 1小时平均值(ug/m³)"+"\n");
+				builder.append("qlty: "+dss.getAqi().getCity().getQlty()+"//空气质量类别"+"\n");
+				builder.append("uv: "+"//紫外线指数"+"\n");
+				builder.append("brf: "+dss.getSuggestion().getUv().getBrf()+"//简介"+"\n");
+				builder.append("txt: "+dss.getSuggestion().getUv().getTxt()+"//详细描述"+"\n");
+			}
+			weatherInfo.setText(builder.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+			// TODO: handle exception
+		}
+	}
+	
 	private void parseJSONWithJSONObject(String jsonData){
 		try{
 			StringBuilder builder=new StringBuilder();
 			JSONObject jsonObject=new JSONObject(jsonData);
 			JSONArray jsonArray=jsonObject.getJSONArray("HeWeather data service 3.0");
-			//
 			JSONObject jsonObject1=jsonArray.getJSONObject(0);
 			builder.append("status: "+jsonObject1.getString("status")+"//接口状态"+"\n");
 			builder.append("basic: "+"//基本信息"+"\n");	

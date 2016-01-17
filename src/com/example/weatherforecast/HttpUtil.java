@@ -6,10 +6,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-//import org.apache.http.HttpConnection;
-
-//import android.net.Uri;
-
 public class HttpUtil {
 	
 	private static String apiKey="8126487f68f7f59c67923e9306400cff";
