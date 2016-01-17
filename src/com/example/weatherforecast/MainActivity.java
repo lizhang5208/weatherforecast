@@ -1,6 +1,7 @@
 package com.example.weatherforecast;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -21,6 +22,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,11 +30,15 @@ public class MainActivity extends Activity implements OnClickListener{
 
 	private EditText city;
 	private Button search;
-	private TextView weatherInfo;
+	//private TextView weatherInfo;
+	private ListView weatherInfo;
 	private String httpUrl = "http://apis.baidu.com/heweather/weather/free";
 	private static final int SHOW_RESPONSE=1;
 	private static final int SHOW_ERROR=2;
 	private ProgressDialog progressDialog;
+	
+	private List<WeatherItem> weatherList=new ArrayList<WeatherItem>();
+	private WeatherAdapter weatherAdapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +46,10 @@ public class MainActivity extends Activity implements OnClickListener{
 		setContentView(R.layout.activity_main);
 		city=(EditText)findViewById(R.id.city);
 		search=(Button)findViewById(R.id.search);
-		weatherInfo=(TextView)findViewById(R.id.weather_info);
+		//weatherInfo=(TextView)findViewById(R.id.weather_info);
+		weatherInfo=(ListView)findViewById(R.id.weather_info);
+		weatherAdapter=new WeatherAdapter(MainActivity.this, R.layout.weather_item, weatherList);
+		weatherInfo.setAdapter(weatherAdapter);
 		search.setOnClickListener(this);
 	}
 		
@@ -92,11 +101,15 @@ public class MainActivity extends Activity implements OnClickListener{
 				closeProgressDialog();
 				//weatherInfo.setText((String)msg.obj);
 				//parseJSONWithJSONObject((String)msg.obj);
+				weatherList.clear();
 				parseJSONWithGSON((String)msg.obj);
 				break;
 			case SHOW_ERROR:
 				closeProgressDialog();
-				weatherInfo.setText("search weather info failed...");
+				//weatherInfo.setText("search weather info failed...");
+				weatherList.clear();
+				weatherList.add(new WeatherItem("从和风公共API接口获取"+city.getText()+"天气信息","失败"));
+				weatherAdapter.notifyDataSetChanged();
 				break;
 			default:
 				break;
@@ -137,27 +150,48 @@ public class MainActivity extends Activity implements OnClickListener{
 			StringBuilder builder=new StringBuilder();
 			for(DataService dss:ds){
 				builder.append("status: "+dss.getStatus()+"//接口状态"+"\n");
+				weatherList.add(new WeatherItem("接口状态","status: "+dss.getStatus()));
 				builder.append("city: "+dss.getBasic().city+"//城市名称"+"\n");
+				weatherList.add(new WeatherItem("城市名称","city: "+dss.getBasic().city));
 				builder.append("cnty: "+dss.getBasic().cnty+"//国家"+"\n");
+				weatherList.add(new WeatherItem("国家","cnty: "+dss.getBasic().cnty));
 				builder.append("lat: "+dss.getBasic().lat+"//城市维度"+"\n");
+				weatherList.add(new WeatherItem("城市维度","lat: "+dss.getBasic().lat));
 				builder.append("lon: "+dss.getBasic().lon+"//城市经度"+"\n");
+				weatherList.add(new WeatherItem("城市经度","lon: "+dss.getBasic().lon));
 				builder.append("loc: "+dss.getBasic().getUpdate().getLoc()+"//更新时间"+"\n");
+				weatherList.add(new WeatherItem("更新时间","loc: "+dss.getBasic().getUpdate().getLoc()));
 				builder.append("txt: "+dss.getNow().getCond().getTxt()+"//天气状况描述"+"\n");
+				weatherList.add(new WeatherItem("天气状况描述","txt: "+dss.getNow().getCond().getTxt()));
 				builder.append("hum: "+dss.getNow().getHum()+"//相对湿度（%）"+"\n");
+				weatherList.add(new WeatherItem("相对湿度（%）","hum: "+dss.getNow().getHum()));
 				builder.append("pcpn: "+dss.getNow().getPcpn()+"//降水量（mm）"+"\n");
+				weatherList.add(new WeatherItem("降水量（mm）","pcpn: "+dss.getNow().getPcpn()));
 				builder.append("tmp: "+dss.getNow().getTmp()+"//温度"+"\n");
+				weatherList.add(new WeatherItem("温度","tmp: "+dss.getNow().getTmp()));
 				builder.append("vis: "+dss.getNow().getVis()+"//能见度（km）"+"\n");
+				weatherList.add(new WeatherItem("能见度（km）","vis: "+dss.getNow().getVis()));
 				builder.append("dir: "+dss.getNow().getWind().getDir()+"//风向"+"\n");
+				weatherList.add(new WeatherItem("风向","dir: "+dss.getNow().getWind().getDir()));
 				builder.append("sc: "+dss.getNow().getWind().getSc()+"//风力"+"\n");
+				weatherList.add(new WeatherItem("风力","status: "+"sc: "+dss.getNow().getWind().getSc()));
 				builder.append("spd: "+dss.getNow().getWind().getSpd()+"//风速（kmph）"+"\n");
+				weatherList.add(new WeatherItem("风速（kmph）","spd: "+dss.getNow().getWind().getSpd()));
 				builder.append("aqi: "+dss.getAqi().getCity().getAqi()+"//空气质量指数"+"\n");
+				weatherList.add(new WeatherItem("空气质量指数","aqi: "+dss.getAqi().getCity().getAqi()));
 				builder.append("pm25: "+dss.getAqi().getCity().getPm25()+"//PM2.5 1小时平均值(ug/m³)"+"\n");
+				weatherList.add(new WeatherItem("PM2.5 1小时平均值(ug/m³)","pm25: "+dss.getAqi().getCity().getPm25()));
 				builder.append("qlty: "+dss.getAqi().getCity().getQlty()+"//空气质量类别"+"\n");
-				builder.append("uv: "+"//紫外线指数"+"\n");
+				weatherList.add(new WeatherItem("空气质量类别","qlty: "+dss.getAqi().getCity().getQlty()));
+				builder.append("uv: "+dss.getSuggestion().getUv()+"//紫外线指数"+"\n");
+				weatherList.add(new WeatherItem("紫外线指数","uv: "+dss.getSuggestion().getUv()));
 				builder.append("brf: "+dss.getSuggestion().getUv().getBrf()+"//简介"+"\n");
+				weatherList.add(new WeatherItem("简介","brf: "+dss.getSuggestion().getUv().getBrf()));
 				builder.append("txt: "+dss.getSuggestion().getUv().getTxt()+"//详细描述"+"\n");
+				weatherList.add(new WeatherItem("详细描述","txt: "+dss.getSuggestion().getUv().getTxt()));
 			}
-			weatherInfo.setText(builder.toString());
+			weatherAdapter.notifyDataSetChanged();
+			//weatherInfo.setText(builder.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 			// TODO: handle exception
@@ -294,7 +328,7 @@ public class MainActivity extends Activity implements OnClickListener{
 				JSONObject jsonObject617=jsonObject61.getJSONObject("uv");
 				builder.append("brf: "+jsonObject617.getString("brf")+"//简介"+"\n");
 				builder.append("txt: "+jsonObject617.getString("txt")+"//详细描述"+"\n");
-		weatherInfo.setText(builder);
+		//weatherInfo.setText(builder);
 		}catch(Exception e){
 			e.printStackTrace();
 			Toast.makeText(this, "parse Json data failed...", Toast.LENGTH_LONG).show();

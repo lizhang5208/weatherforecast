@@ -21,14 +21,20 @@
         android:layout_height="wrap_content" />      
     </LinearLayout>
     
-    <ScrollView 
+    <!-- <ScrollView 
         android:layout_width="match_parent"
     	android:layout_height="0dp"
     	android:layout_weight="1" >
         <TextView
         android:id="@+id/weather_info"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />        
-    </ScrollView> 
+        android:layout_height="match_parent" /> --> 
+        <ListView
+        android:id="@+id/weather_info"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+    	android:layout_weight="1" />
+               
+    <!--  </ScrollView> -->
 
 </LinearLayout>
