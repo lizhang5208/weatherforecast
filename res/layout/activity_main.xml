@@ -21,6 +21,26 @@
         android:layout_height="wrap_content" />      
     </LinearLayout>
     
+    <EditText 
+        android:id="@+id/refresh_rate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="type refresh rate per this second..." />
+    
+    <LinearLayout 
+        android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:orientation="horizontal">   	
+        <CheckBox 
+        android:id="@+id/on_toast_debug"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>       
+        <TextView 
+        android:text="turn on Toast debug"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />      
+    </LinearLayout>
+    
     <!-- <ScrollView 
         android:layout_width="match_parent"
     	android:layout_height="0dp"

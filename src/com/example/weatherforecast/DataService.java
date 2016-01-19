@@ -1,22 +1,8 @@
 package com.example.weatherforecast;
 
-//import java.io.Serializable;
 import java.util.List;
 
-/*public class DataService {
-	//DataService[] dataService;
-	//List<DataService> dataService;
-	@Override
-	public String toString() {
-		StringBuilder builder=new StringBuilder();
-		for(DataService ds:dataService){
-			builder.append(ds.toString());
-		}
-		return builder.toString();
-	}
-}*/
-
-public class DataService /*implements Serializable*/{
+public class DataService {
 	List<Daily> daily_forecast;
 	//DailyForecast daily_forecast;
 	Aqi aqi;
@@ -26,10 +12,6 @@ public class DataService /*implements Serializable*/{
 	Basic basic;
 	List<Hourly> hourly_forecast;
 	//HourlyForecast hourly_forecast;	
-	/*@Override
-	public String toString() {
-		return status;
-	}*/
 	public String getStatus() {
 		return status;
 	}

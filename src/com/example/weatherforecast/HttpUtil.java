@@ -8,7 +8,10 @@ import java.net.URL;
 
 public class HttpUtil {
 	
-	private static String apiKey="8126487f68f7f59c67923e9306400cff";
+	private static final String API_KEY="8126487f68f7f59c67923e9306400cff";
+	public static final String HTTP_URL= "http://apis.baidu.com/heweather/weather/free";
+	public static final int SHOW_RESPONSE=1;
+	public static final int SHOW_ERROR=2;
 	
 	public static void sendHttpRequest(final String address, final HttpCallbackListener listener){
 		new Thread(new Runnable(){
@@ -19,7 +22,7 @@ public class HttpUtil {
 					URL url=new URL(address);
 					connection=(HttpURLConnection)url.openConnection();
 					connection.setRequestMethod("GET");
-					connection.setRequestProperty("apikey", apiKey);
+					connection.setRequestProperty("apikey", API_KEY);
 					connection.setConnectTimeout(8000);
 					connection.setReadTimeout(8000);
 					connection.connect();
@@ -29,7 +32,6 @@ public class HttpUtil {
 					String Line;
 					while((Line=reader.readLine())!=null){
 						response.append(Line);
-						//response.append("\\r\\n");
 					}
 					reader.close();
 					if(listener!=null){
